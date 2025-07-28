@@ -8,23 +8,31 @@ namespace CardGameApi.src.Entities
 {
     public class Game
     {
-        public List<Player> players;
+        public List<Player> Players { get; set; }
         public Deck deck;
         public Game()
         {
-            players = new List<Player>();
+            Players = new List<Player>();
             deck = new Deck();
             deck.Shuffle();
         }
 
-        public void AddPlayer(string name)
+        public void AddPlayer(string playerName)
         {
-            players.Add(new Player(name));
+            if (Players.Count >= 6)
+            {
+                throw new InvalidOperationException("Maximum players reached.");
+            }
+            Players.Add(new Player(playerName));
         }
 
         public void DealCards()
         {
-            foreach (var player in players)
+            if (deck.cards.Count < 30) //@TODO check cards
+            {
+                throw new InvalidOperationException("Not enough cards to deal");
+            }
+            foreach (var player in Players)
             {
                 player.Hand = deck.Deal(5);
             }
@@ -32,7 +40,7 @@ namespace CardGameApi.src.Entities
 
         public void CalculateScores()
         {
-            foreach (var player in players)
+            foreach (var player in Players)
             {
                 player.CalculateScore();
             }
@@ -40,8 +48,8 @@ namespace CardGameApi.src.Entities
 
         public void DetermineWinner()
         {
-            int maxScore = players.Max(p => p.Score);
-            var winners = players.Where(p => p.Score == maxScore).ToList();
+            int maxScore = Players.Max(p => p.Score);
+            var winners = Players.Where(p => p.Score == maxScore).ToList();
 
             if (winners.Count > 1)
             {
@@ -50,16 +58,20 @@ namespace CardGameApi.src.Entities
                 winners = winners.Where(p => p.SuiteScore() == maxSuitScore).ToList();
             }
 
-            Console.WriteLine("Winner(s):");
-            foreach (var winner in winners)
-            {
-                Console.WriteLine($"{winner.Name} with score {winner.Score}");
-            }
+            var winner = winners.First();
+            Console.WriteLine($"The winner is {winner.Name} with a score of {winner.Score}");
+
+
+            // Console.WriteLine("Winner(s):");
+            // foreach (var winner in winners)
+            // {
+            //     Console.WriteLine($"{winner.Name} with score {winner.Score}");
+            // }
         }
 
         public void DisplayResults()
         {
-            foreach (var player in players)
+            foreach (var player in Players)
             {
                 Console.WriteLine($"{player.Name}'s Cards: {string.Join(", ", player.Hand.Select(c => $"{c.Rank} of {c.Suit}"))}");
                 Console.WriteLine($"{player.Name} 's Score: {player.Score}");

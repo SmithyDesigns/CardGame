@@ -33,7 +33,7 @@ namespace CardGameApi.src.Application.Controllers
 
             var game = _games[gameId];
 
-            if (game.players.Count >= 6)
+            if (game.Players.Count >= 6)
             {
                 return BadRequest("Max players reached");
             }
@@ -54,7 +54,7 @@ namespace CardGameApi.src.Application.Controllers
             game.DealCards();
             return Ok(new
             {
-                players = game.players.Select(p => new { p.Name, Hand = p.Hand.Select(c => $"{c.Rank} of {c.Suit}") })
+                players = game.Players.Select(p => new { p.Name, Hand = p.Hand.Select(c => $"{c.Rank} of {c.Suit}") })
             });
         }
 
@@ -70,7 +70,7 @@ namespace CardGameApi.src.Application.Controllers
             game.CalculateScores();
             return Ok(new
             {
-                players = game.players.Select(p => new { p.Name, p.Score })
+                players = game.Players.Select(p => new { p.Name, p.Score })
             });
         }
 
@@ -86,7 +86,7 @@ namespace CardGameApi.src.Application.Controllers
             game.DetermineWinner();
             return Ok(new
             {
-                winner = game.players.First().Name
+                winner = game.Players.First().Name
             });
         }
 
@@ -101,8 +101,8 @@ namespace CardGameApi.src.Application.Controllers
             var game = _games[gameId];
             return Ok(new
             {
-                players = game.players.Select(p => new { p.Name, Hand = p.Hand.Select(c => $"{c.Rank} of {c.Suit}"), p.Score }),
-                winner = game.players.FirstOrDefault()?.Name
+                players = game.Players.Select(p => new { p.Name, Hand = p.Hand.Select(c => $"{c.Rank} of {c.Suit}"), p.Score }),
+                winner = game.Players.FirstOrDefault()?.Name
             });
         }
     }
