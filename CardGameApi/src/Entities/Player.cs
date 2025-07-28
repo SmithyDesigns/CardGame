@@ -7,9 +7,9 @@ namespace CardGameApi.src.Entities
 {
     public class Player
     {
-        private string Name { get; set; }
-        private List<Card> Hand;
-        private int Score { get; set; }
+        public string Name { get; set; }
+        public List<Card> Hand;
+        public int Score { get; set; }
         public Player(string name)
         {
             Name = name;
@@ -17,7 +17,7 @@ namespace CardGameApi.src.Entities
             Score = 0;
         }
 
-        private void CalculateScore()
+        public void CalculateScore()
         {
             Score = Hand.Sum(card => card.Value);
         }
@@ -37,14 +37,6 @@ namespace CardGameApi.src.Entities
                 };
             }
             return suiteScore;
-        }
-
-        public List<Card> Deal(int numberOfCards)
-        {
-            List<Card> dealtCards = cards.Take(numberOfCards).ToList();
-            cards                 = cards.Skip(numberOfCards).ToList();
-
-            return dealtCards;
         }
     }
 }
