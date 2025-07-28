@@ -7,14 +7,20 @@ namespace CardGameApi.src.Entities
 {
     public class Player
     {
+        public int Id { get; set; }
         public string Name { get; set; }
-        public List<Card> Hand;
         public int Score { get; set; }
+        public List<Card> Hand;
+        public int GameId { get; set; }
+        public Game Game { get; set; }
+        
+        public Player () { }
+
         public Player(string name)
         {
             Name = name;
-            Hand = new List<Card>();
-            Score = 0;
+            // Hand = new List<Card>();
+            // Score = 0;
         }
 
         public void CalculateScore()

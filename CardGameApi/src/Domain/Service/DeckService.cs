@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CardGameApi.src.Entities;
 
-namespace CardGameApi.src.Entities
+namespace CardGameApi.src.Domain.Service
 {
-    public class Deck
+    public class DeckService
     {
-        public List<Card> cards;
-        public Deck()
+        public List<Card> cards = new();
+        public void Deck()
         {
-            cards = new List<Card>();
             InitialiseDeck();
         }
 
@@ -35,15 +35,29 @@ namespace CardGameApi.src.Entities
         public void Shuffle()
         {
             Random random = new Random();
-            cards         = cards.OrderBy(c => random.Next()).ToList();
+            for (int i = cards.Count - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                (cards[i], cards[j]) = (cards[j], cards[i]);
+            }
         }
 
         public List<Card> Deal(int numberOfCards)
         {
+            if (cards.Count < numberOfCards)
+            {
+                throw new InvalidOperationException("Not enough cards to deal.");
+            }
+            
             List<Card> dealtCards = cards.Take(numberOfCards).ToList();
-            cards                 = cards.Skip(numberOfCards).ToList();
+            cards = cards.Skip(numberOfCards).ToList();
 
             return dealtCards;
+        }
+        
+        public int RemainingCards(Deck deck)
+        {
+            return deck.cards.Count;
         }
     }
 }
