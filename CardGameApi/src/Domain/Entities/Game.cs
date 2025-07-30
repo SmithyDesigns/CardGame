@@ -9,17 +9,15 @@ namespace CardGameApi.src.Entities
     public class Game
     {
         public int Id { get; set; }
-        public List<Player> Players { get; set; }
-        public Deck Deck { get; set; } = new ();
-        public bool CanAddPlayer => Players.Count < 6;
+        public string[] PlayerId { get; set; } = [];
+        public string[] CardId { get; set; } = [];
+        public bool isComplete { get; set; } = false;
 
-        public void AddPlayer(Player player)
+        public Game(string[] playerId, string[] cardId, bool isComplete = false)
         {
-            if (!CanAddPlayer)
-                throw new InvalidOperationException("Maximum players reached.");
-
-            Players.Add(player);
+            PlayerId = playerId;
+            CardId = cardId;
+            this.isComplete = isComplete;
         }
-
     }
 }

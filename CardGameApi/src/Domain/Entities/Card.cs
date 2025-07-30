@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CardGameApi.src.Entities
 {
@@ -11,16 +12,7 @@ namespace CardGameApi.src.Entities
         public string Rank { get; set; }
         public string Suit { get; set; }
         public int Value { get; set; }
-        public int PlayerId { get; set; }
-        public Player Player { get; set; }
-
-        public Card() { }
-
-        public Card(string rank, string suit, int value)
-        {
-            Rank = rank;
-            Suit = suit;
-            Value = value;
-        }
+        public bool IsInDeck { get; set; } = true;
+        public int DeckNumber { get; set; }
     }
 }
