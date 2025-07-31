@@ -14,6 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddTransient<ICardRepository, CardRepository>();
 builder.Services.AddTransient<IPlayerRepository, PlayerRepository>();
 builder.Services.AddTransient<IGameRepository, GameRepository>();
+builder.Services.AddScoped<CardService>();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CardGameApi.src.Domain.Interface;
 using CardGameApi.src.Domain.Repository;
+using CardGameApi.src.Domain.Service;
 using CardGameApi.src.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -17,11 +18,15 @@ namespace CardGameApi.src.Application.Controllers
     {
         private readonly ICardRepository _cardRepository;
         private readonly IPlayerRepository _playerRepository;
+        private readonly IGameRepository _gameRepository;
+        private readonly CardService _cardService;
 
-        public GameController(ICardRepository cardRepository, IPlayerRepository playerRepository)
+        public GameController(ICardRepository cardRepository, IPlayerRepository playerRepository, CardService cardService, IGameRepository gameRepository)
         {
             _cardRepository = cardRepository;
             _playerRepository = playerRepository;
+            _cardService = cardService;
+            _gameRepository = gameRepository;
 
         }
         // private static Dictionary<int, Game> _games = new Dictionary<int, Game>();
@@ -50,8 +55,29 @@ namespace CardGameApi.src.Application.Controllers
             }
 
             var roundPickedCards = _cardRepository.UpdateCardsInDeckStatusAsync(cardIdList, false);
-            var game = new Game(playerIdList, cardIdStringList);
-            
+            Game game = new Game(playerIdList, cardIdStringList);
+            await _gameRepository.SaveAsync(game);
+
+            // var dealtcards = _cardService.DealCardsToPlayersAsync(playerIdList, cardIdStringList);
+            var dealtcards = _cardService.DealCardsToPlayersAsync(playerIdList, cardIdStringList);
+
+            //@todo - now to give all players 5 cards
+            // playerIdList =
+            // cardIdStringList = 
+            // game.Id
+
+            // @todo update players cardId field and gameId field
+
+            // @todo - calculate the score of earch player update score field in player table. determine winner and if it is a tie or not
+
+            //@todo - do tie caluation update db.
+
+            //@todo update card table when end game is hit to update all the db values back to oriiginal values
+
+
+
+
+
             // var article = await _articleService.Create(createDto);
 
             // var articleDto = new ArticleDto
