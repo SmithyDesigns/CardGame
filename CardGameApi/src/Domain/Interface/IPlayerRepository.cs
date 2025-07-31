@@ -8,7 +8,7 @@ namespace CardGameApi.src.Domain.Interface
 {
     public interface IPlayerRepository
     {
-        public Task SaveAsync(Player player);
-        public Task<List<Player>> GetPlayersAsync(int? id, string? name);
+        Task UpdatePlayersWhereAsync(Func<Player, bool> matchCondition, Action<Player> updateAction);
+        Task<List<Player>> GetAllPlayersAsync();
     }
 }

@@ -11,10 +11,10 @@ namespace CardGameApi.src.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public int Score { get; set; } = 0;
-        public string[] CardId { get; set; }
-        public int GameId { get; set; }
-        
-        public Player(string name, int score, string[] cardId, int gameId)
+        public List<string>? CardId { get; set; } = null;
+        public int? GameId { get; set; } = null;
+
+        public Player(string name, int score, List<string>? cardId = null, int? gameId = null)
         {
             Name = name;
             Score = score;

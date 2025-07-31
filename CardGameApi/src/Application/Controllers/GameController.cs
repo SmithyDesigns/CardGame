@@ -16,31 +16,41 @@ namespace CardGameApi.src.Application.Controllers
     public class GameController : ControllerBase
     {
         private readonly ICardRepository _cardRepository;
+        private readonly IPlayerRepository _playerRepository;
 
-        public GameController(ICardRepository cardRepository)
+        public GameController(ICardRepository cardRepository, IPlayerRepository playerRepository)
         {
             _cardRepository = cardRepository;
+            _playerRepository = playerRepository;
 
         }
         // private static Dictionary<int, Game> _games = new Dictionary<int, Game>();
         // private static int _gameIdCounter = 0;
 
         [HttpPost("start")]
-        public async Task<IActionResult> StartGame([FromBody] StartGameRequest request)
+        public async Task<IActionResult> StartGame()
         {
+
+            var players = await _playerRepository.GetAllPlayersAsync();
+
+            var playerIdList = players.Select(p => p.Id.ToString()).ToList();
+
+
             var cards = await _cardRepository.GetAllCardsAsync();
 
             var random = new Random();
             var roundPlayingCards = cards.OrderBy(c => random.Next()).Take(30).ToList();
 
-            var idList = new List<int>();
+            var cardIdList = new List<int>();
+            var cardIdStringList = new List<string>();
             foreach (var card in roundPlayingCards)
             {
-                idList.Add(card.Id);
+                cardIdList.Add(card.Id);
+                cardIdStringList.Add(card.Id.ToString());
             }
 
-            var roundPickedCards = _cardRepository.UpdateCardsInDeckStatusAsync(idList, false);
-            var game = new Game(request.PlayerId, request.CardId);
+            var roundPickedCards = _cardRepository.UpdateCardsInDeckStatusAsync(cardIdList, false);
+            var game = new Game(playerIdList, cardIdStringList);
             
             // var article = await _articleService.Create(createDto);
 
@@ -53,7 +63,7 @@ namespace CardGameApi.src.Application.Controllers
             // return Ok(articleDto);
 
             // return Ok(new { message = "Game Started" });
-            return Ok(roundPickedCards);
+            return Ok(game);
         }
 
         [HttpPost("end")]

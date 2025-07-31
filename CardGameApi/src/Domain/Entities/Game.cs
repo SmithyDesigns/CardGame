@@ -9,11 +9,11 @@ namespace CardGameApi.src.Entities
     public class Game
     {
         public int Id { get; set; }
-        public string[] PlayerId { get; set; } = [];
-        public string[] CardId { get; set; } = [];
-        public bool isComplete { get; set; } = false;
+        public List<string> PlayerId { get; set; } = [];
+        public List<string> CardId { get; set; } = [];
+        public bool? isComplete { get; set; } = false;
 
-        public Game(string[] playerId, string[] cardId, bool isComplete = false)
+        public Game(List<string> playerId, List<string> cardId, bool? isComplete = false)
         {
             PlayerId = playerId;
             CardId = cardId;
