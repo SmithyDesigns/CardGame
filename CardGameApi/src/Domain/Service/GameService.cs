@@ -7,100 +7,78 @@ using CardGameApi.src.Entities;
 using CardGameApi.src.Domain.Service;
 using CardGameApi.src.Domain.Interface;
 
+
 namespace CardGameApi.src.Domain.Service
 {
-    // public class GameService
-    // {
+    public class GameService
+    {
+        private readonly ICardRepository _cardRepository;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly IGameRepository _gameRepository;
+        private readonly CardService _cardService;
+        private readonly PlayerService _playerService;
 
-    //     private readonly IGameRepository _repository;
-    //     private readonly DeckService _deckService;
+        public GameService(
+            ICardRepository cardRepository,
+            IPlayerRepository playerRepository,
+            IGameRepository gameRepository,
+            CardService cardService,
+            PlayerService playerService)
+        {
+            _cardRepository = cardRepository;
+            _playerRepository = playerRepository;
+            _gameRepository = gameRepository;
+            _cardService = cardService;
+            _playerService = playerService;
+        }
 
-    //     public GameService(IGameRepository repository)
-    //     {
-    //         _repository = repository;
-    //     }
+        public async Task<Dictionary<string, int>> StartNewGameAsync()
+        {
+            var players = await _playerRepository.GetAllPlayersAsync();
+            var playerIdList = players.Select(p => p.Id.ToString()).ToList();
 
-    //     public async Task<Game> StartGameAsync()
-    //     {
-    //         var game = new Game
-    //         {
-    //             Players = new List<Player>(),
-    //             // Cards = new List<Card>()
-    //         };
+            var cards = await _cardRepository.GetAllCardsAsync();
+            var roundPlayingCards = cards.OrderBy(_ => Guid.NewGuid()).Take(30).ToList();
 
-    //         // _repository.Games.Add(game);
-    //         // await _context.SaveChangesAsync();
+            var cardIdList = roundPlayingCards.Select(c => c.Id).ToList();
+            var cardIdStringList = cardIdList.Select(id => id.ToString()).ToList();
 
-    //         return await _repository.CreateGameAsync(game);
+            await _cardRepository.UpdateCardsInDeckStatusAsync(cardIdList, false);
+
+            var game = new Game(playerIdList, cardIdStringList);
+            await _gameRepository.SaveAsync(game);
+
+            await _playerRepository.UpdatePlayersWhereAsync(
+                p => playerIdList.Contains(p.Id.ToString()),
+                player => player.GameId = game.Id);
+
+            await _cardService.DealCardsToPlayersAsync(playerIdList, cardIdStringList);
+
+            var playerScores = await _playerService.CalculateScoresForPlayersAsync(playerIdList);
+
+            await _playerRepository.UpdatePlayersWhereAsync(
+                p => playerIdList.Contains(p.Id.ToString()),
+                player =>
+                {
+                    var idStr = player.Id.ToString();
+                    if (playerScores.ContainsKey(idStr))
+                    {
+                        player.Score = playerScores[idStr];
+                    }
+                }
+            );
+
+            return playerScores;
+        }
         
-    //     }
+        public async Task EndGameAsync(int gameId)
+        {
+            await _gameRepository.UpdateGameAsync(
+                gameId: gameId,
+                isComplete: true
+            );
 
-    //     private static void Shuffle(List<Card> cards)
-    //     {
-    //         var random = new Random();
-    //         int cardCount = cards.Count;
-    //         while (cardCount > 1)
-    //         {
-    //             cardCount--;
-    //             int k = random.Next(cardCount + 1);
-    //             var temp = cards[k];
-    //             cards[k] = cards[cardCount];
-    //             cards[cardCount] = temp;
-    //         }
-    //     }
-
-
-
-
-
-    //     public void AddPlayer(Player playerName)
-    //     {
-    //         _game.AddPlayer(playerName);
-    //     }
-
-    //     public void DealCards()
-    //     {
-    //         if (_game.Deck.cards.Count < _game.Players.Count * 5)
-    //             throw new InvalidOperationException("Not enough cards to deal.");
-
-    //         foreach (var player in _game.Players)
-    //         {
-    //             player.Hand = _deckService.Deal(5);
-    //         }
-    //     }
-
-    //     public void CalculateScores()
-    //     {
-    //         foreach (var player in _game.Players)
-    //         {
-    //             player.CalculateScore();
-    //         }
-    //     }
-
-    //     public Player DetermineWinner()
-    //     {
-    //         var maxScore = _game.Players.Max(p => p.Score);
-    //         var winners = _game.Players.Where(p => p.Score == maxScore).ToList();
-
-    //         if (winners.Count > 1)
-    //         {
-    //             var maxSuitScore = winners.Max(p => p.SuiteScore());
-    //             winners = winners.Where(p => p.SuiteScore() == maxSuitScore).ToList();
-    //         }
-
-    //         return winners.First();
-    //     }
-
-    //     public string GetResults()
-    //     {
-    //         var result = new StringBuilder();
-    //         foreach (var player in _game.Players)
-    //         {
-    //             var hand = string.Join(", ", player.Hand.Select(c => $"{c.Rank} of {c.Suit}"));
-    //             result.AppendLine($"{player.Name}'s Cards: {hand}");
-    //             result.AppendLine($"{player.Name}'s Score: {player.Score}");
-    //         }
-    //         return result.ToString();
-    //     }
-    // }
+            await _gameRepository.ResetAllCardsToDeckAsync();
+        }
+    }
 }

@@ -20,87 +20,87 @@ namespace CardGameApi.src.Application.Controllers
         private readonly IPlayerRepository _playerRepository;
         private readonly IGameRepository _gameRepository;
         private readonly CardService _cardService;
+        private readonly PlayerService _playerService;
+        private readonly GameService _gameService;
 
-        public GameController(ICardRepository cardRepository, IPlayerRepository playerRepository, CardService cardService, IGameRepository gameRepository)
+        public GameController(
+            ICardRepository cardRepository,
+            IPlayerRepository playerRepository,
+            CardService cardService,
+            IGameRepository gameRepository,
+            PlayerService playerService,
+            GameService gameService
+            )
         {
             _cardRepository = cardRepository;
             _playerRepository = playerRepository;
             _cardService = cardService;
             _gameRepository = gameRepository;
-
+            _playerService = playerService;
+            _gameService = gameService;
         }
-        // private static Dictionary<int, Game> _games = new Dictionary<int, Game>();
-        // private static int _gameIdCounter = 0;
 
         [HttpPost("start")]
+        // public async Task<IActionResult> StartGame()
+        // {
+
+        //     var players = await _playerRepository.GetAllPlayersAsync();
+
+        //     var playerIdList = players.Select(p => p.Id.ToString()).ToList();
+
+
+        //     var cards = await _cardRepository.GetAllCardsAsync();
+
+        //     var random = new Random();
+        //     var roundPlayingCards = cards.OrderBy(c => random.Next()).Take(30).ToList();
+
+        //     var cardIdList = new List<int>();
+        //     var cardIdStringList = new List<string>();
+        //     foreach (var card in roundPlayingCards)
+        //     {
+        //         cardIdList.Add(card.Id);
+        //         cardIdStringList.Add(card.Id.ToString());
+        //     }
+
+        //     var roundPickedCards = _cardRepository.UpdateCardsInDeckStatusAsync(cardIdList, false);
+        //     Game game = new Game(playerIdList, cardIdStringList);
+        //     await _gameRepository.SaveAsync(game);
+
+        //     await _playerRepository.UpdatePlayersWhereAsync(
+        //         p => playerIdList.Contains(p.Id.ToString()),
+        //         player => player.GameId = game.Id);
+
+        //     var dealtcards = _cardService.DealCardsToPlayersAsync(playerIdList, cardIdStringList);
+        //     var calculatePlayerScore = await _playerService.CalculateScoresForPlayersAsync(playerIdList);
+
+        //     await _playerRepository.UpdatePlayersWhereAsync(
+        //         p => playerIdList.Contains(p.Id.ToString()),
+        //         player =>
+        //         {
+        //             var playerIdString = player.Id.ToString();
+
+        //             if (calculatePlayerScore != null && calculatePlayerScore.ContainsKey(playerIdString))
+        //             {
+        //                 player.Score = calculatePlayerScore[playerIdString];
+        //             }
+        //         }
+        //     );
+
+
+        //     return Ok(calculatePlayerScore);
+        // }
+
         public async Task<IActionResult> StartGame()
         {
-
-            var players = await _playerRepository.GetAllPlayersAsync();
-
-            var playerIdList = players.Select(p => p.Id.ToString()).ToList();
-
-
-            var cards = await _cardRepository.GetAllCardsAsync();
-
-            var random = new Random();
-            var roundPlayingCards = cards.OrderBy(c => random.Next()).Take(30).ToList();
-
-            var cardIdList = new List<int>();
-            var cardIdStringList = new List<string>();
-            foreach (var card in roundPlayingCards)
-            {
-                cardIdList.Add(card.Id);
-                cardIdStringList.Add(card.Id.ToString());
-            }
-
-            var roundPickedCards = _cardRepository.UpdateCardsInDeckStatusAsync(cardIdList, false);
-            Game game = new Game(playerIdList, cardIdStringList);
-            await _gameRepository.SaveAsync(game);
-
-            // var dealtcards = _cardService.DealCardsToPlayersAsync(playerIdList, cardIdStringList);
-            var dealtcards = _cardService.DealCardsToPlayersAsync(playerIdList, cardIdStringList);
-
-            //@todo - now to give all players 5 cards
-            // playerIdList =
-            // cardIdStringList = 
-            // game.Id
-
-            // @todo update players cardId field and gameId field
-
-            // @todo - calculate the score of earch player update score field in player table. determine winner and if it is a tie or not
-
-            //@todo - do tie caluation update db.
-
-            //@todo update card table when end game is hit to update all the db values back to oriiginal values
-
-
-
-
-
-            // var article = await _articleService.Create(createDto);
-
-            // var articleDto = new ArticleDto
-            // {
-            //     Title = article.Title,
-            //     Html = article.Html
-            // };
-
-            // return Ok(articleDto);
-
-            // return Ok(new { message = "Game Started" });
-            return Ok(game);
+            var result = await _gameService.StartNewGameAsync();
+            return Ok(result);
         }
 
         [HttpPost("end")]
-        public IActionResult EndGame(string gameId)
+        public async Task<IActionResult> EndGame(int gameId)
         {
-            // var newGame = new Game();
-            // var newGameId = _gameIdCounter++;
-            // _games[newGameId] = newGame;
-
-            return Ok(new { message = "Game Finised" });
-            // return Ok(new { gameId = newGameId, message = "Game Started" });
+            await _gameService.EndGameAsync(gameId);
+            return Ok(new { message = "Game Finished" });
         }
 
         // [HttpPost("{gameId}/addPlayer")]

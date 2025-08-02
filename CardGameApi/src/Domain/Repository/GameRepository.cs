@@ -37,7 +37,7 @@ namespace CardGameApi.src.Domain.Repository
             {
                 query = query.Where(g => g.isComplete == isComplete.Value);
             }
-                
+
 
             if (!string.IsNullOrEmpty(playerId))
             {
@@ -50,6 +50,38 @@ namespace CardGameApi.src.Domain.Repository
             }
 
             return await query.ToListAsync();
+        }
+
+        public async Task UpdateGameAsync(int gameId, List<string>? playerIds = null, List<string>? cardIds = null, bool? isComplete = null)
+        {
+            var game = await _context.Games.FindAsync(gameId);
+            if (game == null)
+            {
+                return;
+            }
+
+            if (playerIds != null)
+                game.PlayerId = playerIds;
+
+            if (cardIds != null)
+                game.CardId = cardIds;
+
+            if (isComplete.HasValue)
+                game.isComplete = isComplete;
+
+            await _context.SaveChangesAsync();
+        }
+        
+        public async Task ResetAllCardsToDeckAsync()
+        {
+            var allCards = await _context.Cards.ToListAsync();
+
+            foreach (var card in allCards)
+            {
+                card.IsInDeck = true;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }
