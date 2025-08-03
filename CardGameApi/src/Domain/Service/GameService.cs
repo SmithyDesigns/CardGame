@@ -32,7 +32,7 @@ namespace CardGameApi.src.Domain.Service
             _playerService = playerService;
         }
 
-        public async Task<Dictionary<string, int>> StartNewGameAsync()
+        public async Task<GameStartResult> StartNewGameAsync()
         {
             var players = await _playerRepository.GetAllPlayersAsync();
             var playerIdList = players.Select(p => p.Id.ToString()).ToList();
@@ -46,7 +46,7 @@ namespace CardGameApi.src.Domain.Service
             await _cardRepository.UpdateCardsInDeckStatusAsync(cardIdList, false);
 
             var game = new Game(playerIdList, cardIdStringList);
-            await _gameRepository.SaveAsync(game);
+            await _gameRepository.SaveAsync(game); // i want this game id returned and used in the data var created when returning a response please help me do so
 
             await _playerRepository.UpdatePlayersWhereAsync(
                 p => playerIdList.Contains(p.Id.ToString()),
@@ -68,7 +68,11 @@ namespace CardGameApi.src.Domain.Service
                 }
             );
 
-            return playerScores;
+            return new GameStartResult
+            {
+                GameId = game.Id,
+                PlayerScores = playerScores
+            };
         }
         
         public async Task EndGameAsync(int gameId)

@@ -13,3 +13,9 @@ git branch
 git checkout -b <my-new-branch>
 git status
 git add .
+git commit -m "some message"
+git push -u origin <my-new-branch>
+
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+dotnet ef migrations remove InitialCreate
