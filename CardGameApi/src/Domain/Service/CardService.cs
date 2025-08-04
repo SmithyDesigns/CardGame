@@ -15,7 +15,7 @@ namespace CardGameApi.src.Domain.Service
 
         public CardService(ICardRepository cardRepository, IPlayerRepository playerRepository)
         {
-            _cardRepository = cardRepository;
+            _cardRepository   = cardRepository;
             _playerRepository = playerRepository;
 
         }
@@ -24,17 +24,18 @@ namespace CardGameApi.src.Domain.Service
         {
             try
             {
-                int playersCount = playerIds.Count;
+                int playersCount   = playerIds.Count;
                 int cardsPerPlayer = 5;
 
                 if (cardIds.Count < playersCount * cardsPerPlayer)
+                {
                     return;
+                }
 
                 await _playerRepository.UpdatePlayersWhereAsync(
                     p => playerIds.Contains(p.Id.ToString()),player =>
                     {
-                        int index = playerIds.IndexOf(player.Id.ToString());
-
+                        int index       = playerIds.IndexOf(player.Id.ToString());
                         var playerCards = Enumerable.Range(0, cardsPerPlayer)
                                                     .Select(i => cardIds[index + i * playersCount])
                                                     .ToArray();
@@ -48,56 +49,5 @@ namespace CardGameApi.src.Domain.Service
                 Console.WriteLine("An error occurred while dealing cards: " + ex.Message);
             }
         }
-        //     public List<Card> cards = new();
-        //     public void Deck()
-        //     {
-        //         InitialiseDeck();
-        //     }
-
-        //     private void InitialiseDeck()
-        //     {
-        //         string[] suits = { "Hearts", "Diamond", "Spades", "Clubs" };
-        //         string[] ranks = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
-
-        //         foreach (string suit in suits)
-        //         {
-        //             foreach (string rank in ranks)
-        //             {
-        //                 int value = rank == "j" ? 11 : rank == "Q" ? 12 : rank == "K" ? 13 : rank == "A" ? 11 : int.Parse(rank);
-        //                 cards.Add(new Card(rank, suit, value));
-        //             }
-        //         }
-
-        //         cards.Add(new Card("Joker", "None", 1));
-        //         cards.Add(new Card("Joker", "None", 1));
-        //     }
-
-        //     public void Shuffle()
-        //     {
-        //         Random random = new Random();
-        //         for (int i = cards.Count - 1; i > 0; i--)
-        //         {
-        //             int j = random.Next(i + 1);
-        //             (cards[i], cards[j]) = (cards[j], cards[i]);
-        //         }
-        //     }
-
-        //     public List<Card> Deal(int numberOfCards)
-        //     {
-        //         if (cards.Count < numberOfCards)
-        //         {
-        //             throw new InvalidOperationException("Not enough cards to deal.");
-        //         }
-
-        //         List<Card> dealtCards = cards.Take(numberOfCards).ToList();
-        //         cards = cards.Skip(numberOfCards).ToList();
-
-        //         return dealtCards;
-        //     }
-
-        // public int RemainingCards(Deck deck)
-        // {
-        //     return deck.cards.Count;
-        // }
     }
 }

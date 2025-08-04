@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import '../style/GameTable.css';
 
 export default function CardTable() {
-    const [scores, setScores] = useState({});
-    const [loading, setLoading] = useState(false);
+    const [scores, setScores]           = useState({});
+    const [loading, setLoading]         = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
-    const [gameId, setGameId] = useState(null);
+    const [gameId, setGameId]           = useState(null);
 
     const startGame = async () => {
         try {
@@ -15,17 +15,27 @@ export default function CardTable() {
                     "Content-Type": "application/json"
                 }
             });
-            
-            if (!response.ok)
-                {
-                    throw new Error("Failed to start game");
-                }
-            
-            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error("Failed to start game");
+            }
+
+            const data   = await response.json();
+            const scores = data.playerScores;
+
             setLoading(false);
-            setScores(data.playerScores);
+            setScores(scores);
             setGameId(data.gameId);
             setGameStarted(true);
+
+            const sortedPlayers           = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            const [winnerId, winnerScore] = sortedPlayers[0];
+
+
+            setTimeout(() => {
+                alert(`🏆 Player ${winnerId} wins the game with a score of ${winnerScore}! 🎉`);
+            }, 3000);
+
         } catch (error) {
             console.error("Error:", error);
             alert("Failed to start game");
@@ -89,7 +99,7 @@ export default function CardTable() {
             <div className="player">{`Player 3: ${scores["3"] ?? "-"}`}</div>
             </div>
 
-            <div style={{ height: "50px" }}></div>
+            <div style={{ height: "10px" }}></div>
             <div className="player">{`Player 4: ${scores["4"] ?? "-"}`}</div>
         </div>
     );

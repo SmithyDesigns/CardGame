@@ -61,14 +61,21 @@ namespace CardGameApi.src.Domain.Repository
             }
 
             if (playerIds != null)
+            {
                 game.PlayerId = playerIds;
+            }
 
             if (cardIds != null)
+            {
                 game.CardId = cardIds;
+            }
+
 
             if (isComplete.HasValue)
+            {
                 game.isComplete = isComplete;
-
+            }
+                
             await _context.SaveChangesAsync();
         }
         

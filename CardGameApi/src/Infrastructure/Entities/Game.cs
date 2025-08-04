@@ -15,8 +15,8 @@ namespace CardGameApi.src.Entities
 
         public Game(List<string> playerId, List<string> cardId, bool? isComplete = false)
         {
-            PlayerId = playerId;
-            CardId = cardId;
+            PlayerId        = playerId;
+            CardId          = cardId;
             this.isComplete = isComplete;
         }
     }

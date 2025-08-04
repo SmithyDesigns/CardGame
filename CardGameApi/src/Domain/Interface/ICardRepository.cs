@@ -8,7 +8,7 @@ namespace CardGameApi.src.Domain.Interface
 {
     public interface ICardRepository
     {
-        Task<List<Card>> GetAllCardsAsync();
-        Task UpdateCardsInDeckStatusAsync(IEnumerable<int> cardIds, bool isInDeck);
+        public Task<List<Card>> GetAllCardsAsync();
+        public Task UpdateCardsInDeckStatusAsync(IEnumerable<int> cardIds, bool isInDeck);
     }
 }

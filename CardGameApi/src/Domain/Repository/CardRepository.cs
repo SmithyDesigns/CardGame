@@ -26,7 +26,9 @@ namespace CardGameApi.src.Domain.Repository
         public async Task UpdateCardsInDeckStatusAsync(IEnumerable<int> cardIds, bool isInDeck)
         {
             if (cardIds == null || !cardIds.Any())
+            {
                 return;
+            }
 
             var cardsToUpdate = await _context.Cards.Where(c => cardIds.Contains(c.Id)).ToListAsync();
 
