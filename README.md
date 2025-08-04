@@ -64,33 +64,6 @@ cd CardGame
     npm run dev
     ```
 
-## 🧪 Git Workflow when Dev'ing 😄
-
-###  Check branches
-``` bash
-git branch
-```
-### Create and switch to a new branch
-``` bash
-git checkout -b <my-new-branch>
-```
-### Check file status
-``` bash
-git status
-```
-### Stage all changes
-``` bash
-git add .
-```
-### Commit changes
-``` bash
-git commit -m "your message here"
-```
-### Push to remote
-``` bash
-git push -u origin <my-new-branch>
-```
-
 ## 📬 API Reference
 
 ### Access the Swagger UI for API exploration:

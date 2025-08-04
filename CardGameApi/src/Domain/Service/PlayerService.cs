@@ -16,59 +16,108 @@ namespace CardGameApi.src.Domain.Service
         public PlayerService(IPlayerRepository playerRepository, ICardRepository cardRepository)
         {
             _playerRepository = playerRepository;
-            _cardRepository = cardRepository;
+            _cardRepository   = cardRepository;
         }
 
         public async Task<Dictionary<string, int>> CalculateScoresForPlayersAsync(List<string> playerIds)
         {
-            var players         = await _playerRepository.GetAllPlayersAsync();
-            var filteredPlayers = players.Where(p => playerIds.Contains(p.Id.ToString())).ToList();
+            var allPlayers      = await _playerRepository.GetAllPlayersAsync();
+            var selectedPlayers = allPlayers
+                .Where(player => playerIds.Contains(player.Id.ToString()))
+                .ToList();
 
-            var allCards     = await _cardRepository.GetAllCardsAsync();
-            var suitPriority = new Dictionary<string, int>
+            var allCards = await _cardRepository.GetAllCardsAsync();
+
+            var suitValues = new Dictionary<string, int>
             {
-                { "Spades", 4 },
-                { "Hearts", 3 },
-                { "Diamonds", 2 },
-                { "Clubs", 1 }
+                { "Diamonds", 1 },
+                { "Hearts", 2 },
+                { "Spades", 3 },
+                { "Clubs", 4 }
             };
 
-            var playerScores       = new Dictionary<string, int>();
-            var playerSuitStrength = new Dictionary<string, int>();
 
-            foreach (var player in filteredPlayers)
+            var playerCards = selectedPlayers.ToDictionary(
+                player => player.Id.ToString(),
+                player => GetCardsForPlayer(player, allCards)
+            );
+
+
+            var baseScoresByPlayerId = playerCards.ToDictionary(
+                pair => pair.Key,
+                pair => CalculateSuitScore(pair.Value, suitValues)
+            );
+
+
+            var finalScores = ResolveFinalScores(baseScoresByPlayerId, playerCards, suitValues);
+
+            return finalScores;
+        }
+
+        private List<Card> GetCardsForPlayer(Player player, List<Card> allCards)
+        {
+            return allCards.Where(c => player.CardId.Contains(c.Id.ToString())).ToList();
+        }
+
+        private int CalculateSuitScore(List<Card> cards, Dictionary<string, int> suitValues)
+        {
+            var suitPoints = cards
+                .Select(card => suitValues.GetValueOrDefault(card.Suit, 1))
+                .ToList();
+
+            int totalScore = 1;
+            foreach (var points in suitPoints)
             {
-                var cards               = allCards.Where(c => player.CardId.Contains(c.Id.ToString())).ToList();
-                int score               = cards.Sum(c => c.Value);
-                int highestSuitStrength = cards.Max(c => suitPriority.ContainsKey(c.Suit) ? suitPriority[c.Suit] : 0);
-
-                playerScores[player.Id.ToString()] = score;
-                playerSuitStrength[player.Id.ToString()] = highestSuitStrength;
+                totalScore *= points;
             }
 
+            return totalScore;
+        }
+        
+        private Dictionary<string, int> ResolveFinalScores(
+            Dictionary<string, int> baseScoresByPlayerId,
+            Dictionary<string, List<Card>> playerCards,
+            Dictionary<string, int> suitValues)
+        {
             var finalScores = new Dictionary<string, int>();
 
-            foreach (var playerScore in playerScores.GroupBy(ps => ps.Value))
+            foreach (var scoreGroup in baseScoresByPlayerId.GroupBy(score => score.Value))
             {
-                if (playerScore.Count() == 1)
+                if (scoreGroup.Count() == 1)
                 {
-                    finalScores[playerScore.First().Key] = playerScore.Key;
+                    var player = scoreGroup.First();
+                    finalScores[player.Key] = player.Value;
                 }
                 else
                 {
-                    var orderedPlayerScores = playerScore.OrderByDescending(kv => playerSuitStrength[kv.Key]).ToList();
-                    int baseScore           = playerScore.Key;
-                    int penalty             = 0;
+                    var recalculatedSuitScores = scoreGroup.ToDictionary(
+                        player => player.Key,
+                        player => CalculateSuitScore(playerCards[player.Key], suitValues)
+                    );
 
-                    foreach (var orderedPlayerScore in orderedPlayerScores)
+                    var groupedBySuitScore = recalculatedSuitScores.GroupBy(p => p.Value).ToList();
+
+                    if (groupedBySuitScore.All(g => g.Count() == 1))
                     {
-                        finalScores[orderedPlayerScore.Key] = baseScore - penalty;
-                        penalty++;
+                        foreach (var player in recalculatedSuitScores)
+                        {
+                            finalScores[player.Key] = player.Value;
+                        }
+                    }
+                    else
+                    {
+                        var orderedPlayers = recalculatedSuitScores
+                            .OrderByDescending(p => p.Value)
+                            .ToList();
+
+                        int baseScore = scoreGroup.Key;
+                        for (int i = 0; i < orderedPlayers.Count; i++)
+                        {
+                            finalScores[orderedPlayers[i].Key] = baseScore - i;
+                        }
                     }
                 }
             }
-
-            var winner = finalScores.OrderByDescending(kv => kv.Value).First();
             return finalScores;
         }
     }

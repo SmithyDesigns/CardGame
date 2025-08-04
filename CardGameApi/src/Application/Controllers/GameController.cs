@@ -18,9 +18,7 @@ namespace CardGameApi.src.Application.Controllers
     {
         private readonly GameService _gameService;
 
-        public GameController(
-            GameService gameService
-            )
+        public GameController(GameService gameService)
         {
             _gameService = gameService;
         }

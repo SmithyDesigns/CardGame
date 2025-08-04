@@ -70,7 +70,6 @@ namespace CardGameApi.src.Domain.Repository
                 game.CardId = cardIds;
             }
 
-
             if (isComplete.HasValue)
             {
                 game.isComplete = isComplete;
