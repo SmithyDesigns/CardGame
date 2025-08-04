@@ -21,11 +21,10 @@ namespace CardGameApi.src.Domain.Service
 
         public async Task<Dictionary<string, int>> CalculateScoresForPlayersAsync(List<string> playerIds)
         {
-            var players = await _playerRepository.GetAllPlayersAsync();
+            var players         = await _playerRepository.GetAllPlayersAsync();
             var filteredPlayers = players.Where(p => playerIds.Contains(p.Id.ToString())).ToList();
 
-            var allCards = await _cardRepository.GetAllCardsAsync();
-
+            var allCards     = await _cardRepository.GetAllCardsAsync();
             var suitPriority = new Dictionary<string, int>
             {
                 { "Spades", 4 },
@@ -34,13 +33,13 @@ namespace CardGameApi.src.Domain.Service
                 { "Clubs", 1 }
             };
 
-            var playerScores = new Dictionary<string, int>();
+            var playerScores       = new Dictionary<string, int>();
             var playerSuitStrength = new Dictionary<string, int>();
 
             foreach (var player in filteredPlayers)
             {
-                var cards = allCards.Where(c => player.CardId.Contains(c.Id.ToString())).ToList();
-                int score = cards.Sum(c => c.Value);
+                var cards               = allCards.Where(c => player.CardId.Contains(c.Id.ToString())).ToList();
+                int score               = cards.Sum(c => c.Value);
                 int highestSuitStrength = cards.Max(c => suitPriority.ContainsKey(c.Suit) ? suitPriority[c.Suit] : 0);
 
                 playerScores[player.Id.ToString()] = score;
@@ -58,8 +57,8 @@ namespace CardGameApi.src.Domain.Service
                 else
                 {
                     var orderedPlayerScores = playerScore.OrderByDescending(kv => playerSuitStrength[kv.Key]).ToList();
-                    int baseScore = playerScore.Key;
-                    int penalty = 0;
+                    int baseScore           = playerScore.Key;
+                    int penalty             = 0;
 
                     foreach (var orderedPlayerScore in orderedPlayerScores)
                     {

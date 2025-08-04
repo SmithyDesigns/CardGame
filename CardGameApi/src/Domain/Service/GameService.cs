@@ -25,22 +25,22 @@ namespace CardGameApi.src.Domain.Service
             CardService cardService,
             PlayerService playerService)
         {
-            _cardRepository = cardRepository;
+            _cardRepository   = cardRepository;
             _playerRepository = playerRepository;
-            _gameRepository = gameRepository;
-            _cardService = cardService;
-            _playerService = playerService;
+            _gameRepository   = gameRepository;
+            _cardService      = cardService;
+            _playerService    = playerService;
         }
 
-        public async Task<Dictionary<string, int>> StartNewGameAsync()
+        public async Task<GameStartResult> StartNewGameAsync()
         {
-            var players = await _playerRepository.GetAllPlayersAsync();
+            var players      = await _playerRepository.GetAllPlayersAsync();
             var playerIdList = players.Select(p => p.Id.ToString()).ToList();
 
-            var cards = await _cardRepository.GetAllCardsAsync();
+            var cards             = await _cardRepository.GetAllCardsAsync();
             var roundPlayingCards = cards.OrderBy(_ => Guid.NewGuid()).Take(30).ToList();
 
-            var cardIdList = roundPlayingCards.Select(c => c.Id).ToList();
+            var cardIdList       = roundPlayingCards.Select(c => c.Id).ToList();
             var cardIdStringList = cardIdList.Select(id => id.ToString()).ToList();
 
             await _cardRepository.UpdateCardsInDeckStatusAsync(cardIdList, false);
@@ -68,7 +68,11 @@ namespace CardGameApi.src.Domain.Service
                 }
             );
 
-            return playerScores;
+            return new GameStartResult
+            {
+                GameId       = game.Id,
+                PlayerScores = playerScores
+            };
         }
         
         public async Task EndGameAsync(int gameId)
