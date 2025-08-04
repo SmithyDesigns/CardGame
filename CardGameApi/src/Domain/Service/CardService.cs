@@ -33,7 +33,8 @@ namespace CardGameApi.src.Domain.Service
                 }
 
                 await _playerRepository.UpdatePlayersWhereAsync(
-                    p => playerIds.Contains(p.Id.ToString()),player =>
+                    p => playerIds.Contains(p.Id.ToString()),
+                    player =>
                     {
                         int index       = playerIds.IndexOf(player.Id.ToString());
                         var playerCards = Enumerable.Range(0, cardsPerPlayer)
