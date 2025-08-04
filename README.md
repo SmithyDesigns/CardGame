@@ -1,6 +1,14 @@
 # 🃏 CardGame
 A multiplayer card game built using **ASP.NET Core Web API** and a **React frontend**.
 
+# Preview:
+- <img width="1100" height="662" alt="image" src="https://github.com/user-attachments/assets/86855d9a-2ff5-459d-ab75-8521c7990a3b" />
+
+- <img width="1100" height="662" alt="image" src="https://github.com/user-attachments/assets/b1cbfdfb-1174-4f9f-8a03-0173a20b5aa0" />
+
+- <img width="1100" height="662" alt="image" src="https://github.com/user-attachments/assets/67f2639a-35cb-49cc-8665-86f91e9c79f0" />
+
+- <img width="1100" height="662" alt="image" src="https://github.com/user-attachments/assets/f2acdcd5-0609-4a16-acb7-d19cf451c445" />
 
 ## ⚙️ Prerequisites
 Make sure the following tools are installed:
